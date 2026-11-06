@@ -16,6 +16,9 @@
   --bg:#f3f5f4; --surface:#ffffff; --ink:#1d2a2e; --muted:#5d6b6f; --line:#d5dcdb;
   --accent:#1f6f66; --accent-ink:#ffffff; --accent-soft:#e1efec; --warn:#8a5a00; --warn-soft:#fbf0d9;
   --stage:#e6eae9; --shadow:0 1px 2px rgba(20,40,40,.08),0 4px 14px rgba(20,40,40,.07);
+  /* 考点等级：红 极可能考 / 橙 可能考 / 蓝灰 不太会考 / 灰 不考 */
+  --hi:#c0261f; --hi-soft:#fbe7e5; --mid:#c26300; --mid-soft:#fdf0de; --low:#4d617a; --low-soft:#e9eef4;
+  --no:#8a9496; --no-soft:#eceeee; --on-lv:#ffffff;
   --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
   --f-body:"PingFang SC","Microsoft YaHei UI","Microsoft YaHei","Noto Sans SC","Hiragino Sans GB",system-ui,sans-serif;
   --f-num:ui-monospace,"SF Mono",Consolas,monospace;
@@ -23,11 +26,15 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#121a1c; --surface:#1b2528; --ink:#e7eeed; --muted:#9db0ae; --line:#2f3d40;
   --accent:#5cc2b2; --accent-ink:#06201c; --accent-soft:#1d3532; --warn:#f0c36a; --warn-soft:#3a2e15;
-  --stage:#0c1214; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3); color-scheme:dark}}
+  --stage:#0c1214; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  --hi:#ff7a6e; --hi-soft:#3b1d1b; --mid:#f2a54a; --mid-soft:#3a2a15; --low:#9db4cf; --low-soft:#1f2a36;
+  --no:#7d8a8c; --no-soft:#232c2e; --on-lv:#10181a; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121a1c; --surface:#1b2528; --ink:#e7eeed; --muted:#9db0ae; --line:#2f3d40;
   --accent:#5cc2b2; --accent-ink:#06201c; --accent-soft:#1d3532; --warn:#f0c36a; --warn-soft:#3a2e15;
-  --stage:#0c1214; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3); color-scheme:dark}
+  --stage:#0c1214; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  --hi:#ff7a6e; --hi-soft:#3b1d1b; --mid:#f2a54a; --mid-soft:#3a2a15; --low:#9db4cf; --low-soft:#1f2a36;
+  --no:#7d8a8c; --no-soft:#232c2e; --on-lv:#10181a; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{background:var(--bg);color:var(--ink)}
 body{font:17px/1.6 var(--f-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
@@ -96,6 +103,34 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .th span{position:absolute;right:5px;bottom:5px;background:rgba(0,0,0,.66);color:#fff;font:12px var(--f-num);border-radius:5px;padding:0 6px}
 .th.on{border-color:var(--accent)}
 .th.unheard img{opacity:.78}
+/* ---------- 考点等级 ---------- */
+.pill{display:inline-block;flex:none;border-radius:6px;padding:1px 8px;font-size:13px;font-weight:700;line-height:1.6;
+  background:var(--no);color:var(--on-lv);white-space:nowrap;vertical-align:2px;font-style:normal}
+.lv-high .pill,.pill.lv-high{background:var(--hi)} .lv-mid .pill,.pill.lv-mid{background:var(--mid)}
+.lv-low .pill,.pill.lv-low{background:var(--low)}
+.lec .pill{margin-right:8px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:4px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.tierbox,.impb{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;border:0;border-left:4px solid var(--no);
+  background:var(--no-soft);border-radius:10px;padding:9px 12px;color:var(--ink);font-size:15px;line-height:1.55}
+.tierbox{margin-bottom:12px}
+.impb{margin-top:10px}
+.tierbox.lv-high,.impb.lv-high{border-color:var(--hi);background:var(--hi-soft)}
+.tierbox.lv-mid,.impb.lv-mid{border-color:var(--mid);background:var(--mid-soft)}
+.tierbox.lv-low,.impb.lv-low{border-color:var(--low);background:var(--low-soft)}
+.tierbox .txt,.impb .txt{min-width:0;flex:1;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.tierbox.open .txt,.impb.open .txt{display:block}
+.impb .ev,.tierbox .ev{color:var(--muted)}
+.impb .more,.tierbox .more{flex:none;color:var(--muted);font-size:13px;align-self:center}
+.impb.open .more,.tierbox.open .more{display:none}
+.track{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.track input{width:100%}
+#heat{height:7px;border-radius:4px;background:var(--line)}
+.heatkey{font-size:13px;color:var(--muted);margin-top:2px}
+.th .lvtag{position:absolute;left:5px;top:5px;right:auto;bottom:auto;border-radius:5px;padding:0 6px;font:700 11.5px/1.6 var(--f-body);
+  background:var(--no);color:var(--on-lv)}
+.th.lv-high .lvtag{background:var(--hi)} .th.lv-mid .lvtag{background:var(--mid)} .th.lv-low .lvtag{background:var(--low)}
+.th.lv-high{border-bottom-color:var(--hi)} .th.lv-mid{border-bottom-color:var(--mid)}
 @media (max-width:560px){
   body{font-size:16px}
   .ctl{grid-template-columns:1fr auto 1fr;gap:6px}
@@ -120,6 +155,11 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <h1>CS769 中文有声课件</h1>
       <p class="lead">这是这学期奥克兰大学的「自然语言处理」课（CS769）。每一讲都是翻成中文的 PPT，配上老师上课讲的话（电脑把老师的英文讲课翻成中文，再用男声念出来）。</p>
       <div class="how"><span><b>①</b> 点一讲</span><span><b>②</b> 按中间的大圆按钮 ▶</span><span><b>③</b> PPT 会跟着老师自动翻页，下面显示老师正在说的话</span></div>
+      <div class="legend" aria-label="颜色说明">期末考试重要性：
+        <span><i class="pill lv-high">必看</i>期末考过、老师点名</span>
+        <span><i class="pill lv-mid">该看</i>可能考</span>
+        <span><i class="pill lv-low">有空再看</i>不太会考</span>
+        <span><i class="pill">不考</i></span></div>
     </header>
     <ol class="list" id="list"><li id="load">正在打开目录…</li></ol>
     <p class="foot">中文声音是电脑合成的，偶尔会念错或者有一两句不通顺，是翻译的问题，不是老师讲错了。有几讲的录像没有字幕，所以只有 PPT。</p>
@@ -129,7 +169,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <div class="bar"><button class="back" id="back" type="button">← 目录</button><h2 id="vt"></h2></div>
     <div id="vload" class="say" hidden><p id="vloadtxt">正在载入这一讲…</p></div>
     <div id="vbody" hidden>
+      <button type="button" class="tierbox" id="tierBox" hidden><span class="pill" id="tierTag"></span><span class="txt" id="tierTxt"></span><span class="more">展开</span></button>
       <div class="stage" id="stage"><img id="slide" alt=""><span class="tag" id="tag"></span></div>
+      <button type="button" class="impb" id="impb" hidden><span class="pill" id="impTag"></span><span class="txt"><b id="impT"></b> <span class="ev" id="impEv"></span></span><span class="more">展开</span></button>
       <div class="pnum"><span>第 <b id="pn">1</b> / <b id="pt">1</b> 页</span><button id="behind" type="button" hidden>回到老师讲的那一页</button></div>
       <div class="say" id="sayBox"><div class="lbl">老师在说</div><p id="cue" class="idle">按 ▶ 开始听老师讲课。</p></div>
       <div class="ctl">
@@ -137,7 +179,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
         <button id="play" type="button" aria-label="播放"><svg viewBox="0 0 24 24" id="playIc"><path d="M8 5v14l11-7z"/></svg></button>
         <div class="side r"><button class="btn" id="fwd" type="button" aria-label="快进15秒">15<span class="long">秒</span>↻</button><button class="btn" id="next" type="button"><span class="long">下一页</span><span class="short">下页</span> ›</button></div>
       </div>
-      <div class="seek" id="seekRow"><span id="tc">0:00</span><input id="seek" type="range" min="0" max="1" step="1" value="0" aria-label="播放进度"><span id="td">0:00</span></div>
+      <div class="seek" id="seekRow"><span id="tc">0:00</span><div class="track"><input id="seek" type="range" min="0" max="1" step="1" value="0" aria-label="播放进度"><div id="heat" title="进度条下面的颜色：红 = 极可能考，橙 = 可能考，蓝灰 = 不太会考，灰 = 不考"></div></div><span id="td">0:00</span></div>
+      <div class="heatkey" id="heatKey">进度条下面的颜色：<b style="color:var(--hi)">红</b> 极可能考，<b style="color:var(--mid)">橙</b> 可能考，<b style="color:var(--low)">蓝灰</b> 不太会考，灰 不考</div>
       <div class="opts" id="optsRow">
         <label>语速 <select id="rate"><option value="0.8">慢一点</option><option value="1" selected>正常</option><option value="1.2">快一点</option><option value="1.5">很快</option></select></label>
         <span id="spanInfo"></span>
@@ -154,12 +197,18 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const V="2";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
+const V="3";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
 const au=$("au");
 let INDEX=[], L=null, key=null, override=null, lastRef=null, saveT=0, wake=null;
 
 const store={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
              set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+/* 考点等级（和有声PPT、桌面 PDF 上印的同一套：_考点到页.py）。页级 lv，讲级 tier */
+const LVN={high:"极可能考",mid:"可能考",low:"不太会考",no:"不考",admin:"闲聊/事务",none:"录像里没讲这页"};
+const LVS={high:"极可能考",mid:"可能考",low:"不太会",no:"不考",admin:"闲聊",none:"没讲"};
+const TIER={must:["必看","high"],should:["该看","mid"],later:["有空再看","low"],skip:["不考","no"]};
+const lvOf=p=>{const x=L&&L.pages[p]&&L.pages[p].imp; return x? x[0] : "none"};
+function setLv(el,lv){ el.classList.remove("lv-high","lv-mid","lv-low","lv-no","lv-admin","lv-none"); el.classList.add("lv-"+lv) }
 const fmt=s=>{s=Math.max(0,Math.floor(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
   return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")};
 
@@ -173,6 +222,8 @@ function renderList(){
     const sub=[m.when, m.pages+" 页", m.audio? "讲解约 "+m.min+" 分钟" : null].filter(Boolean).join(" · ");
     b.innerHTML='<span class="no">L'+m.key+'</span><span class="nm"></span><span class="sub"></span><span class="go"></span>';
     b.querySelector(".nm").textContent=m.name;
+    const tr=TIER[(m.tier||[])[0]];
+    if(tr){ const p=document.createElement("i"); p.className="pill lv-"+tr[1]; p.textContent=tr[0]; b.querySelector(".nm").prepend(p) }
     b.querySelector(".sub").textContent=sub;
     if(!m.audio){const c=document.createElement("span");c.className="chip";c.textContent="只有PPT";b.querySelector(".nm").appendChild(c)}
     b.querySelector(".go").textContent = m.audio ? (last&&last.t>20 ? "接着听 "+fmt(last.t) : "听这一讲 ›") : "看PPT ›";
@@ -203,7 +254,7 @@ function firstTime(p){ for(const e of L.tl) if(e[1]===p) return e[0]; return nul
 
 /* 跳到时间 t。有的服务器不支持「从中间开始下载」，那样直接跳会被弹回开头：
    这时把整讲声音（约 10MB）下载下来再跳，之后这一讲怎么跳都行。 */
-let blobFor=null, blobing=null;
+let blobFor=null, blobing=null, preT=null;
 function canSeek(t){
   const s=au.seekable;
   for(let i=0;i<s.length;i++) if(s.start(i)<=t && t<=s.end(i)+0.5) return true;
@@ -211,7 +262,8 @@ function canSeek(t){
 }
 function seekTo(t){
   t=Math.max(0,t);
-  if(au.readyState<1 || canSeek(t) || blobFor===key){ au.currentTime=t; return }
+  if(au.readyState<1){ preT=t; au.currentTime=t; return }   // 声音还没载入：记下来，载入后再跳（不然会被弹回 0）
+  if(canSeek(t) || blobFor===key){ au.currentTime=t; return }
   pendingT=t; au.currentTime=t;
   setTimeout(()=>{ if(Math.abs(au.currentTime-t)>3 && pendingT===t) loadWhole(t) },400);
 }
@@ -239,6 +291,32 @@ function show(ref){
   document.querySelectorAll(".th.on").forEach(x=>x.classList.remove("on"));
   const th=$("thumbs").children[p]; if(th) th.classList.add("on");
   $("slide").alt="第 "+(p+1)+" 页";
+  // 这一页考不考：等级 + 这页讲什么 + 依据（真题题号 / 老师原话）
+  const ib=$("impb");
+  if(!isMain){ ib.hidden=true }
+  else if(ib.dataset.p!==String(ref)){
+    ib.dataset.p=String(ref); ib.classList.remove("open");
+    const x=L.pages[ref].imp, lv=x?x[0]:"none";
+    setLv(ib,lv); $("impTag").textContent=LVN[lv]||lv;
+    $("impT").textContent = x? x[1] : "老师上课没翻到这页";
+    $("impEv").textContent = x? x[2] : "";
+    ib.hidden=false;
+    requestAnimationFrame(()=>{ const t=ib.querySelector(".txt"); ib.querySelector(".more").hidden = t.scrollHeight<=t.clientHeight+2 });
+  }
+}
+function drawHeat(dur){ // 进度条下面按时间涂考点颜色：哪一段在讲重点一眼就看出来
+  const h=$("heat"); if(!L||!L.audio||!L.tl.length||!(dur>0)){ h.style.background=""; return }
+  const css=getComputedStyle(document.documentElement);
+  const col={high:css.getPropertyValue("--hi"),mid:css.getPropertyValue("--mid"),low:css.getPropertyValue("--low"),
+             no:css.getPropertyValue("--line"),admin:css.getPropertyValue("--line"),none:css.getPropertyValue("--line")};
+  const stops=[]; let prevC=null;
+  const pageAt=i=>{ for(let j=i;j>=0;j--) if(typeof L.tl[j][1]==="number") return L.tl[j][1]; return 0 };
+  L.tl.forEach((e,i)=>{
+    const c=(col[lvOf(pageAt(i))]||col.none).trim(), a=i===0?0:Math.min(100,e[0]/dur*100);
+    if(c!==prevC){ if(prevC!==null) stops.push(prevC+" "+a.toFixed(2)+"%"); stops.push(c+" "+a.toFixed(2)+"%"); prevC=c }
+  });
+  stops.push(prevC+" 100%");
+  h.style.background="linear-gradient(to right,"+stops.join(",")+")";
 }
 function tick(){
   if(!L) return;
@@ -277,7 +355,7 @@ function go(p){ // 手动翻到第 p 页（0 开始）
 
 async function openLecture(k){
   const m=INDEX.find(x=>x.key===k); if(!m){ location.hash=""; return }
-  au.pause(); if(blobFor){ try{URL.revokeObjectURL(au.src)}catch(e){} blobFor=null } pendingT=null; key=k; L=null; override=null; lastRef=null;
+  au.pause(); if(blobFor){ try{URL.revokeObjectURL(au.src)}catch(e){} blobFor=null } pendingT=null; preT=null; key=k; L=null; override=null; lastRef=null;
   $("home").hidden=true; $("view").hidden=false; $("vbody").hidden=true; $("vload").hidden=false;
   $("vt").textContent="L"+k+" "+m.name; document.title="L"+k+" "+m.name+" · CS769 中文有声课件";
   $("vloadtxt").textContent="正在载入这一讲的 PPT…（第一次打开要等几秒）";
@@ -292,14 +370,22 @@ async function openLecture(k){
   $("note").textContent=m.note||"";
   const th=$("thumbs"); th.innerHTML="";
   L.pages.forEach((pg,i)=>{
-    const b=document.createElement("button"); b.type="button"; b.className="th"+(L.audio&&firstTime(i)==null?" unheard":"");
-    b.innerHTML='<img loading="lazy" alt=""><span>'+(i+1)+'</span>'; b.querySelector("img").src=pg.img;
+    const lv=lvOf(i);
+    const b=document.createElement("button"); b.type="button"; b.className="th lv-"+lv+(L.audio&&firstTime(i)==null?" unheard":"");
+    b.innerHTML='<img loading="lazy" alt=""><span>'+(i+1)+'</span><span class="lvtag"></span>'; b.querySelector("img").src=pg.img;
+    b.querySelector(".lvtag").textContent=LVS[lv]||lv;
     b.querySelector("img").alt="第 "+(i+1)+" 页"; b.onclick=()=>{ go(i); window.scrollTo({top:0,behavior:"smooth"}) };
     th.appendChild(b);
   });
   const hasA=!!m.audio;
   ["play","rew","fwd"].forEach(id=>$(id).disabled=!hasA);
-  $("seekRow").hidden=!hasA; $("optsRow").hidden=!hasA;
+  $("seekRow").hidden=!hasA; $("optsRow").hidden=!hasA; $("heatKey").hidden=!hasA;
+  // 整讲考不考：等级 + 为什么（复习课点名 / 两年真卷）
+  const tr=TIER[(m.tier||[])[0]], tb=$("tierBox");
+  tb.hidden=!tr; tb.classList.remove("open"); $("impb").dataset.p="";
+  if(tr){ setLv(tb,tr[1]); $("tierTag").textContent="这一讲："+tr[0]; $("tierTxt").textContent=m.tier[1]||"";
+    requestAnimationFrame(()=>{ const t=$("tierTxt"); tb.querySelector(".more").hidden = t.scrollHeight<=t.clientHeight+2 }) }
+  drawHeat(m.min*60);
   $("sayBox").hidden=!hasA;
   $("thint").textContent = hasA ? "（点哪页就跳到老师讲那页的地方）" : "（点哪页就看哪页）";
   $("spanInfo").textContent = hasA && L.spans.length>1 ? "这一讲分两次课讲完，中间接着放" : "";
@@ -309,8 +395,9 @@ async function openLecture(k){
     const last=store.get("pos2:"+k);
     const start= last&&last.t>5 ? last.t : 0;
     au.addEventListener("loadedmetadata",function once(){ au.removeEventListener("loadedmetadata",once);
-      $("seek").max=Math.floor(au.duration||m.min*60); $("td").textContent=fmt(au.duration);
-      if(start) seekTo(start); tick(); });
+      $("seek").max=Math.floor(au.duration||m.min*60); $("td").textContent=fmt(au.duration); drawHeat(au.duration);
+      const s0 = preT!=null ? preT : start; preT=null;
+      if(s0) seekTo(s0); tick(); });
     if(start){ $("cue").textContent="上次听到 "+fmt(start)+"，按 ▶ 接着听。"; $("cue").classList.add("idle") }
     else { $("cue").textContent="按 ▶ 开始听老师讲课。"; $("cue").classList.add("idle") }
     show(start? refAt(start) : (L.tl.length? L.tl[0][1] : 0));
@@ -335,6 +422,8 @@ $("fwd").onclick=()=>{ seekTo(Math.min(au.duration||1e9,au.currentTime+15)); ove
 $("prev").onclick=()=>{ const cur=override!==null&&typeof override==="number"?override:mainAt(au.currentTime||0); go(cur-1) };
 $("next").onclick=()=>{ const cur=override!==null&&typeof override==="number"?override:mainAt(au.currentTime||0); go(cur+1) };
 $("behind").onclick=()=>{ override=null; tick() };
+$("tierBox").onclick=()=>$("tierBox").classList.toggle("open");
+$("impb").onclick=()=>$("impb").classList.toggle("open");
 $("rate").onchange=()=>{ au.playbackRate=parseFloat($("rate").value); store.set("rate",$("rate").value) };
 $("seek").addEventListener("input",()=>{ seeking=true; $("tc").textContent=fmt(+$("seek").value) });
 $("seek").addEventListener("change",()=>{ seekTo(+$("seek").value); seeking=false; override=null; tick() });
