@@ -154,6 +154,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
+const V="2";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
 const au=$("au");
 let INDEX=[], L=null, key=null, override=null, lastRef=null, saveT=0, wake=null;
 
@@ -168,7 +169,7 @@ function renderList(){
   INDEX.forEach(m=>{
     const li=document.createElement("li");
     const b=document.createElement("button"); b.type="button"; b.className="lec"+(m.audio?"":" mute");
-    const last=store.get("pos:"+m.key);
+    const last=store.get("pos2:"+m.key);
     const sub=[m.when, m.pages+" 页", m.audio? "讲解约 "+m.min+" 分钟" : null].filter(Boolean).join(" · ");
     b.innerHTML='<span class="no">L'+m.key+'</span><span class="nm"></span><span class="sub"></span><span class="go"></span>';
     b.querySelector(".nm").textContent=m.name;
@@ -257,7 +258,7 @@ function tick(){
     else if(!au.paused){ el.textContent="（老师这会儿没说话，或者在放视频、写板书）"; el.classList.add("idle") }
     $("tc").textContent=fmt(t);
     if(!seeking) $("seek").value=Math.floor(t);
-    const now=Date.now(); if(now-saveT>4000){ saveT=now; store.set("pos:"+key,{t:t}) }
+    const now=Date.now(); if(now-saveT>4000){ saveT=now; store.set("pos2:"+key,{t:t}) }
   }
 }
 let seeking=false;
@@ -282,10 +283,10 @@ async function openLecture(k){
   $("vloadtxt").textContent="正在载入这一讲的 PPT…（第一次打开要等几秒）";
   window.scrollTo(0,0);
   let data;
-  try{ const r=await fetch("d/L"+k+".json"); if(!r.ok) throw new Error(r.status); data=await r.json() }
+  try{ const r=await fetch("d/L"+k+".json?v="+V); if(!r.ok) throw new Error(r.status); data=await r.json() }
   catch(e){ $("vloadtxt").textContent="这一讲没载入成功，检查一下网络，再点一次「← 目录」重新打开。"; return }
   if(key!==k) return;
-  L=data; L.audio=m.audio;
+  L=data; L.audio=m.audio? m.audio+"?v="+V : null;
   document.documentElement.style.setProperty("--ar", String(m.ar||16/9));
   $("pt").textContent=L.pages.length; $("tn").textContent=L.pages.length;
   $("note").textContent=m.note||"";
@@ -303,9 +304,9 @@ async function openLecture(k){
   $("thint").textContent = hasA ? "（点哪页就跳到老师讲那页的地方）" : "（点哪页就看哪页）";
   $("spanInfo").textContent = hasA && L.spans.length>1 ? "这一讲分两次课讲完，中间接着放" : "";
   if(hasA){
-    au.src=m.audio; au.playbackRate=parseFloat($("rate").value);
+    au.src=L.audio; au.playbackRate=parseFloat($("rate").value);
     $("seek").max=Math.round(m.min*60); $("td").textContent=fmt(m.min*60);
-    const last=store.get("pos:"+k);
+    const last=store.get("pos2:"+k);
     const start= last&&last.t>5 ? last.t : 0;
     au.addEventListener("loadedmetadata",function once(){ au.removeEventListener("loadedmetadata",once);
       $("seek").max=Math.floor(au.duration||m.min*60); $("td").textContent=fmt(au.duration);
@@ -327,7 +328,7 @@ function route(){
 }
 
 /* ---------- 按钮 ---------- */
-$("back").onclick=()=>{ if(key) store.set("pos:"+key,{t:au.currentTime||0}); location.hash="" };
+$("back").onclick=()=>{ if(key) store.set("pos2:"+key,{t:au.currentTime||0}); location.hash="" };
 $("play").onclick=()=>{ if(!L||!L.audio) return; if(au.paused){ if(override!==null){ const t=firstTime(override); if(t!=null) seekTo(t); override=null } au.play().catch(()=>{}) } else au.pause() };
 $("rew").onclick=()=>{ seekTo(au.currentTime-15); override=null; tick() };
 $("fwd").onclick=()=>{ seekTo(Math.min(au.duration||1e9,au.currentTime+15)); override=null; tick() };
@@ -339,8 +340,8 @@ $("seek").addEventListener("input",()=>{ seeking=true; $("tc").textContent=fmt(+
 $("seek").addEventListener("change",()=>{ seekTo(+$("seek").value); seeking=false; override=null; tick() });
 au.addEventListener("timeupdate",tick);
 au.addEventListener("play",()=>{ setPlayIcon(); try{ navigator.wakeLock&&navigator.wakeLock.request("screen").then(w=>wake=w).catch(()=>{}) }catch(e){} });
-au.addEventListener("pause",()=>{ setPlayIcon(); if(key) store.set("pos:"+key,{t:au.currentTime||0}); try{wake&&wake.release()}catch(e){} wake=null });
-au.addEventListener("ended",()=>{ store.set("pos:"+key,{t:0}); $("cue").textContent="这一讲听完了。点「← 目录」选下一讲。"; $("cue").classList.add("idle") });
+au.addEventListener("pause",()=>{ setPlayIcon(); if(key) store.set("pos2:"+key,{t:au.currentTime||0}); try{wake&&wake.release()}catch(e){} wake=null });
+au.addEventListener("ended",()=>{ store.set("pos2:"+key,{t:0}); $("cue").textContent="这一讲听完了。点「← 目录」选下一讲。"; $("cue").classList.add("idle") });
 au.addEventListener("waiting",()=>{ if(L&&L.audio){ $("cue").textContent="正在载入声音…"; $("cue").classList.add("idle") } });
 document.addEventListener("keydown",e=>{
   if($("view").hidden||!L||e.target.tagName==="SELECT"||e.target.tagName==="INPUT") return;
