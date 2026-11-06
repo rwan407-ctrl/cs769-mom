@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6f66">
+<meta name="robots" content="noindex,nofollow">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>CS769 中文有声课件</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&display=swap">
+<style>
+/* 布局：上面一张大幻灯片，下面是老师此刻在说的那句中文，再下面是大按钮；目录页是一列讲次卡片 */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#1d2a2e; --muted:#5d6b6f; --line:#d5dcdb;
+  --accent:#1f6f66; --accent-ink:#ffffff; --accent-soft:#e1efec; --warn:#8a5a00; --warn-soft:#fbf0d9;
+  --stage:#e6eae9; --shadow:0 1px 2px rgba(20,40,40,.08),0 4px 14px rgba(20,40,40,.07);
+  --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"PingFang SC","Microsoft YaHei UI","Microsoft YaHei","Noto Sans SC","Hiragino Sans GB",system-ui,sans-serif;
+  --f-num:ui-monospace,"SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121a1c; --surface:#1b2528; --ink:#e7eeed; --muted:#9db0ae; --line:#2f3d40;
+  --accent:#5cc2b2; --accent-ink:#06201c; --accent-soft:#1d3532; --warn:#f0c36a; --warn-soft:#3a2e15;
+  --stage:#0c1214; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a1c; --surface:#1b2528; --ink:#e7eeed; --muted:#9db0ae; --line:#2f3d40;
+  --accent:#5cc2b2; --accent-ink:#06201c; --accent-soft:#1d3532; --warn:#f0c36a; --warn-soft:#3a2e15;
+  --stage:#0c1214; --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font:17px/1.6 var(--f-body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+button,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0}
+
+/* ---------- 目录 ---------- */
+#home header{padding-block:28px 8px;display:grid;gap:10px}
+#home .kicker{font-size:14px;letter-spacing:.08em;color:var(--accent);font-weight:700}
+#home h1{font-size:clamp(28px,6vw,40px);line-height:1.25}
+#home .lead{color:var(--muted);max-width:40em;margin:0}
+.how{display:flex;flex-wrap:wrap;gap:8px 22px;margin:14px 0 6px;padding:14px 16px;border-radius:12px;background:var(--accent-soft);font-size:16px}
+.how b{color:var(--accent)}
+.list{display:grid;gap:10px;margin-top:18px;padding:0;list-style:none}
+.lec{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:center;width:100%;text-align:left;
+  padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:var(--shadow)}
+.lec:hover{border-color:var(--accent)}
+.lec .no{font:700 15px/1 var(--f-num);color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:8px 9px;grid-row:span 2}
+.lec .nm{font-weight:700;font-size:18px;min-width:0;overflow-wrap:anywhere}
+.lec .sub{grid-column:2;color:var(--muted);font-size:14.5px;min-width:0}
+.lec .go{grid-row:span 2;grid-column:3;font-size:15px;font-weight:700;color:var(--accent);white-space:nowrap}
+.lec.mute .go{color:var(--muted);font-weight:400}
+.chip{display:inline-block;border-radius:999px;padding:0 9px;font-size:13px;background:var(--warn-soft);color:var(--warn);margin-left:6px}
+.foot{color:var(--muted);font-size:14px;margin-top:26px}
+
+/* ---------- 一讲 ---------- */
+#view .bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;align-items:center;gap:10px;padding-block:10px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.back{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 12px;white-space:nowrap;font-size:16px}
+#vt{font-size:clamp(17px,3.6vw,22px);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stage{position:relative;background:var(--stage);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);
+  aspect-ratio:var(--ar,16/9);max-width:100%;max-height:64vh;margin:0 auto}
+.stage img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
+.stage .tag{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.66);color:#fff;font-size:13px;border-radius:8px;padding:2px 9px}
+.stage .tag:empty{display:none}
+.pnum{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 2px 0;color:var(--muted);font-size:15px}
+.pnum b{color:var(--ink);font-variant-numeric:tabular-nums}
+#behind{border:0;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:3px 10px;font-size:14px}
+.say{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-height:76px;max-height:9.5em;overflow:auto}
+.say .lbl{font-size:13px;color:var(--muted);letter-spacing:.06em}
+#cue{font-size:clamp(18px,3.8vw,21px);line-height:1.65;margin:2px 0 0}
+#cue.idle{color:var(--muted);font-size:16px}
+.ctl{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-top:14px}
+.ctl .side{display:flex;gap:8px}
+.ctl .side.r{justify-content:flex-end}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;font-size:16px;white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:default}
+.btn .short{display:none}
+#play{width:78px;height:78px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:var(--shadow)}
+#play svg{width:34px;height:34px;fill:currentColor}
+#play:disabled{background:var(--line);color:var(--muted)}
+.seek{display:flex;align-items:center;gap:10px;margin-top:14px;font:14px var(--f-num);color:var(--muted);font-variant-numeric:tabular-nums}
+.seek input{flex:1;min-width:0;accent-color:var(--accent);height:28px}
+.opts{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-top:8px;color:var(--muted);font-size:15px}
+.opts select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 6px}
+#note{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:15px}
+#note:empty{display:none}
+#load{padding:60px 0;text-align:center;color:var(--muted)}
+.thumbs-h{font-size:18px;margin:30px 0 10px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.th{border:2px solid transparent;border-radius:9px;padding:0;background:var(--surface);overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.th img{display:block;width:100%;aspect-ratio:var(--ar,16/9);object-fit:contain;background:#fff}
+.th span{position:absolute;right:5px;bottom:5px;background:rgba(0,0,0,.66);color:#fff;font:12px var(--f-num);border-radius:5px;padding:0 6px}
+.th.on{border-color:var(--accent)}
+.th.unheard img{opacity:.78}
+@media (max-width:560px){
+  body{font-size:16px}
+  .ctl{grid-template-columns:1fr auto 1fr;gap:6px}
+  .btn{padding:9px 10px;font-size:15px}
+  .btn .long{display:none}
+  .btn .short{display:inline}
+  #play{width:68px;height:68px}
+  .thumbs{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+  .lec{grid-template-columns:auto 1fr}
+  .lec .go{grid-column:2;grid-row:auto;font-size:14px}
+}
+@media (prefers-reduced-motion:no-preference){.th,.lec{transition:border-color .15s}}
+</style>
+</head>
+<body>
+
+
+<main class="wrap">
+  <section id="home">
+    <header>
+      <div class="kicker">COMPSCI 769 · 自然语言处理</div>
+      <h1>CS769 中文有声课件</h1>
+      <p class="lead">这是这学期奥克兰大学的「自然语言处理」课（CS769）。每一讲都是翻成中文的 PPT，配上老师上课讲的话（电脑把老师的英文讲课翻成中文，再用男声念出来）。</p>
+      <div class="how"><span><b>①</b> 点一讲</span><span><b>②</b> 按中间的大圆按钮 ▶</span><span><b>③</b> PPT 会跟着老师自动翻页，下面显示老师正在说的话</span></div>
+    </header>
+    <ol class="list" id="list"><li id="load">正在打开目录…</li></ol>
+    <p class="foot">中文声音是电脑合成的，偶尔会念错或者有一两句不通顺，是翻译的问题，不是老师讲错了。有几讲的录像没有字幕，所以只有 PPT。</p>
+  </section>
+
+  <section id="view" hidden>
+    <div class="bar"><button class="back" id="back" type="button">← 目录</button><h2 id="vt"></h2></div>
+    <div id="vload" class="say" hidden><p id="vloadtxt">正在载入这一讲…</p></div>
+    <div id="vbody" hidden>
+      <div class="stage" id="stage"><img id="slide" alt=""><span class="tag" id="tag"></span></div>
+      <div class="pnum"><span>第 <b id="pn">1</b> / <b id="pt">1</b> 页</span><button id="behind" type="button" hidden>回到老师讲的那一页</button></div>
+      <div class="say" id="sayBox"><div class="lbl">老师在说</div><p id="cue" class="idle">按 ▶ 开始听老师讲课。</p></div>
+      <div class="ctl">
+        <div class="side"><button class="btn" id="prev" type="button">‹ <span class="long">上一页</span><span class="short">上页</span></button><button class="btn" id="rew" type="button" aria-label="倒退15秒">↺15<span class="long">秒</span></button></div>
+        <button id="play" type="button" aria-label="播放"><svg viewBox="0 0 24 24" id="playIc"><path d="M8 5v14l11-7z"/></svg></button>
+        <div class="side r"><button class="btn" id="fwd" type="button" aria-label="快进15秒">15<span class="long">秒</span>↻</button><button class="btn" id="next" type="button"><span class="long">下一页</span><span class="short">下页</span> ›</button></div>
+      </div>
+      <div class="seek" id="seekRow"><span id="tc">0:00</span><input id="seek" type="range" min="0" max="1" step="1" value="0" aria-label="播放进度"><span id="td">0:00</span></div>
+      <div class="opts" id="optsRow">
+        <label>语速 <select id="rate"><option value="0.8">慢一点</option><option value="1" selected>正常</option><option value="1.2">快一点</option><option value="1.5">很快</option></select></label>
+        <span id="spanInfo"></span>
+      </div>
+      <p id="note"></p>
+      <h2 class="thumbs-h">这一讲的全部 <span id="tn"></span> 页<span id="thint">（点哪页就跳到老师讲那页的地方）</span></h2>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+  </section>
+</main>
+<audio id="au" preload="metadata"></audio>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const au=$("au");
+let INDEX=[], L=null, key=null, override=null, lastRef=null, saveT=0, wake=null;
+
+const store={get(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}},
+             set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const fmt=s=>{s=Math.max(0,Math.floor(s||0));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+  return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")};
+
+/* ---------- 目录 ---------- */
+function renderList(){
+  const ol=$("list"); ol.innerHTML="";
+  INDEX.forEach(m=>{
+    const li=document.createElement("li");
+    const b=document.createElement("button"); b.type="button"; b.className="lec"+(m.audio?"":" mute");
+    const last=store.get("pos:"+m.key);
+    const sub=[m.when, m.pages+" 页", m.audio? "讲解约 "+m.min+" 分钟" : null].filter(Boolean).join(" · ");
+    b.innerHTML='<span class="no">L'+m.key+'</span><span class="nm"></span><span class="sub"></span><span class="go"></span>';
+    b.querySelector(".nm").textContent=m.name;
+    b.querySelector(".sub").textContent=sub;
+    if(!m.audio){const c=document.createElement("span");c.className="chip";c.textContent="只有PPT";b.querySelector(".nm").appendChild(c)}
+    b.querySelector(".go").textContent = m.audio ? (last&&last.t>20 ? "接着听 "+fmt(last.t) : "听这一讲 ›") : "看PPT ›";
+    b.onclick=()=>{location.hash="L"+m.key};
+    li.appendChild(b); ol.appendChild(li);
+  });
+}
+
+/* ---------- 一讲 ---------- */
+function refAt(t){ // 时间 t 老师放的是哪一页（tl 按时间排好）
+  const tl=L.tl; if(!tl.length) return 0;
+  let lo=0,hi=tl.length-1,ans=-1;
+  while(lo<=hi){const mid=(lo+hi)>>1; if(tl[mid][0]<=t){ans=mid;lo=mid+1}else hi=mid-1}
+  return ans<0 ? tl[0][1] : tl[ans][1];
+}
+function mainAt(t){ // 时间 t 对应的本讲页码（插播别的讲义时，算前一张本讲的页）
+  const tl=L.tl; let p=0;
+  for(let i=0;i<tl.length&&tl[i][0]<=t;i++) if(typeof tl[i][1]==="number") p=tl[i][1];
+  return p;
+}
+function cueAt(t){
+  const s=L.subs; let lo=0,hi=s.length-1,ans=-1;
+  while(lo<=hi){const mid=(lo+hi)>>1; if(s[mid][0]<=t){ans=mid;lo=mid+1}else hi=mid-1}
+  if(ans>=0 && t<=s[ans][1]+1.2) return s[ans];
+  return null;
+}
+function firstTime(p){ for(const e of L.tl) if(e[1]===p) return e[0]; return null }
+
+/* 跳到时间 t。有的服务器不支持「从中间开始下载」，那样直接跳会被弹回开头：
+   这时把整讲声音（约 10MB）下载下来再跳，之后这一讲怎么跳都行。 */
+let blobFor=null, blobing=null;
+function canSeek(t){
+  const s=au.seekable;
+  for(let i=0;i<s.length;i++) if(s.start(i)<=t && t<=s.end(i)+0.5) return true;
+  return false;
+}
+function seekTo(t){
+  t=Math.max(0,t);
+  if(au.readyState<1 || canSeek(t) || blobFor===key){ au.currentTime=t; return }
+  pendingT=t; au.currentTime=t;
+  setTimeout(()=>{ if(Math.abs(au.currentTime-t)>3 && pendingT===t) loadWhole(t) },400);
+}
+let pendingT=null;
+function loadWhole(t){
+  if(blobing) { pendingT=t; return }
+  const k=key, src=L.audio, wasPlaying=!au.paused;
+  $("cue").textContent="正在下载这一讲的声音，下载完就跳过去（只需要等一次）…"; $("cue").classList.add("idle");
+  blobing=fetch(src).then(r=>{ if(!r.ok) throw 0; return r.blob() }).then(b=>{
+    if(key!==k) return;
+    blobFor=k; au.src=URL.createObjectURL(b); au.playbackRate=parseFloat($("rate").value);
+    au.addEventListener("loadedmetadata",function once(){ au.removeEventListener("loadedmetadata",once);
+      au.currentTime=pendingT!=null?pendingT:t; pendingT=null; if(wasPlaying) au.play().catch(()=>{}); tick() });
+  }).catch(()=>{ $("cue").textContent="声音下载没成功，检查一下网络再试。" }).finally(()=>{ blobing=null });
+}
+
+function show(ref){
+  const isMain=typeof ref==="number";
+  const img=isMain? L.pages[ref].img : L.foreign[ref];
+  if($("slide").dataset.ref!==String(ref)){ $("slide").src=img; $("slide").dataset.ref=String(ref) }
+  $("tag").textContent = isMain ? (L.pages[ref].en?"这页还是英文原版":"") : "老师临时翻到别的讲义的一页";
+  const p=isMain?ref:(override!=null&&typeof override==="number"?override:mainAt(au.currentTime||0));
+  $("pn").textContent=p+1;
+  $("prev").disabled = p<=0; $("next").disabled = p>=L.pages.length-1;
+  document.querySelectorAll(".th.on").forEach(x=>x.classList.remove("on"));
+  const th=$("thumbs").children[p]; if(th) th.classList.add("on");
+  $("slide").alt="第 "+(p+1)+" 页";
+}
+function tick(){
+  if(!L) return;
+  const t=au.currentTime||0;
+  const r=L.audio? refAt(t) : 0;
+  if(String(r)!==String(lastRef)){ lastRef=r; if(override!==null && !au.paused) override=null; }
+  show(override!==null ? override : (L.audio? r : 0));
+  $("behind").hidden = !(override!==null && L.audio && (au.currentTime>0 || !au.paused));
+  if(L.audio){
+    const c=cueAt(t), el=$("cue");
+    if(c){
+      const box=$("sayBox");
+      if(el.textContent!==c[2]){ el.textContent=c[2]; el.classList.remove("idle"); box.scrollTop=0 }
+      const room=box.scrollHeight-box.clientHeight; // 长段落（同传）跟着念到的位置慢慢往下滚
+      if(room>4){ const f=Math.min(1,Math.max(0,(t-c[0])/Math.max(1,c[1]-c[0]))); box.scrollTop=Math.max(0,f*(room+box.clientHeight)-box.clientHeight*0.4) }
+    }
+    else if(!au.paused){ el.textContent="（老师这会儿没说话，或者在放视频、写板书）"; el.classList.add("idle") }
+    $("tc").textContent=fmt(t);
+    if(!seeking) $("seek").value=Math.floor(t);
+    const now=Date.now(); if(now-saveT>4000){ saveT=now; store.set("pos:"+key,{t:t}) }
+  }
+}
+let seeking=false;
+function setPlayIcon(){
+  const playing=!au.paused;
+  $("playIc").innerHTML = playing ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>';
+  $("play").setAttribute("aria-label", playing?"暂停":"播放");
+}
+function go(p){ // 手动翻到第 p 页（0 开始）
+  p=Math.max(0,Math.min(L.pages.length-1,p));
+  const t=L.audio? firstTime(p) : null;
+  if(t!=null){ override=null; seekTo(t+0.05); lastRef=p; show(p); }
+  else { override=p; show(p); }
+  tick();
+}
+
+async function openLecture(k){
+  const m=INDEX.find(x=>x.key===k); if(!m){ location.hash=""; return }
+  au.pause(); if(blobFor){ try{URL.revokeObjectURL(au.src)}catch(e){} blobFor=null } pendingT=null; key=k; L=null; override=null; lastRef=null;
+  $("home").hidden=true; $("view").hidden=false; $("vbody").hidden=true; $("vload").hidden=false;
+  $("vt").textContent="L"+k+" "+m.name; document.title="L"+k+" "+m.name+" · CS769 中文有声课件";
+  $("vloadtxt").textContent="正在载入这一讲的 PPT…（第一次打开要等几秒）";
+  window.scrollTo(0,0);
+  let data;
+  try{ const r=await fetch("d/L"+k+".json"); if(!r.ok) throw new Error(r.status); data=await r.json() }
+  catch(e){ $("vloadtxt").textContent="这一讲没载入成功，检查一下网络，再点一次「← 目录」重新打开。"; return }
+  if(key!==k) return;
+  L=data; L.audio=m.audio;
+  document.documentElement.style.setProperty("--ar", String(m.ar||16/9));
+  $("pt").textContent=L.pages.length; $("tn").textContent=L.pages.length;
+  $("note").textContent=m.note||"";
+  const th=$("thumbs"); th.innerHTML="";
+  L.pages.forEach((pg,i)=>{
+    const b=document.createElement("button"); b.type="button"; b.className="th"+(L.audio&&firstTime(i)==null?" unheard":"");
+    b.innerHTML='<img loading="lazy" alt=""><span>'+(i+1)+'</span>'; b.querySelector("img").src=pg.img;
+    b.querySelector("img").alt="第 "+(i+1)+" 页"; b.onclick=()=>{ go(i); window.scrollTo({top:0,behavior:"smooth"}) };
+    th.appendChild(b);
+  });
+  const hasA=!!m.audio;
+  ["play","rew","fwd"].forEach(id=>$(id).disabled=!hasA);
+  $("seekRow").hidden=!hasA; $("optsRow").hidden=!hasA;
+  $("sayBox").hidden=!hasA;
+  $("thint").textContent = hasA ? "（点哪页就跳到老师讲那页的地方）" : "（点哪页就看哪页）";
+  $("spanInfo").textContent = hasA && L.spans.length>1 ? "这一讲分两次课讲完，中间接着放" : "";
+  if(hasA){
+    au.src=m.audio; au.playbackRate=parseFloat($("rate").value);
+    $("seek").max=Math.round(m.min*60); $("td").textContent=fmt(m.min*60);
+    const last=store.get("pos:"+k);
+    const start= last&&last.t>5 ? last.t : 0;
+    au.addEventListener("loadedmetadata",function once(){ au.removeEventListener("loadedmetadata",once);
+      $("seek").max=Math.floor(au.duration||m.min*60); $("td").textContent=fmt(au.duration);
+      if(start) seekTo(start); tick(); });
+    if(start){ $("cue").textContent="上次听到 "+fmt(start)+"，按 ▶ 接着听。"; $("cue").classList.add("idle") }
+    else { $("cue").textContent="按 ▶ 开始听老师讲课。"; $("cue").classList.add("idle") }
+    show(start? refAt(start) : (L.tl.length? L.tl[0][1] : 0));
+    $("tc").textContent=fmt(start);
+    if("mediaSession" in navigator){ try{ navigator.mediaSession.metadata=new MediaMetadata({title:"L"+k+" "+m.name,artist:"CS769 中文讲解"}) }catch(e){} }
+  } else { au.removeAttribute("src"); show(0) }
+  setPlayIcon();
+  $("vload").hidden=true; $("vbody").hidden=false;
+}
+
+function route(){
+  const m=/^#L(\d\d)$/.exec(location.hash);
+  if(m) openLecture(m[1]);
+  else { au.pause(); L=null; key=null; $("view").hidden=true; $("home").hidden=false; document.title="CS769 中文有声课件"; renderList() }
+}
+
+/* ---------- 按钮 ---------- */
+$("back").onclick=()=>{ if(key) store.set("pos:"+key,{t:au.currentTime||0}); location.hash="" };
+$("play").onclick=()=>{ if(!L||!L.audio) return; if(au.paused){ if(override!==null){ const t=firstTime(override); if(t!=null) seekTo(t); override=null } au.play().catch(()=>{}) } else au.pause() };
+$("rew").onclick=()=>{ seekTo(au.currentTime-15); override=null; tick() };
+$("fwd").onclick=()=>{ seekTo(Math.min(au.duration||1e9,au.currentTime+15)); override=null; tick() };
+$("prev").onclick=()=>{ const cur=override!==null&&typeof override==="number"?override:mainAt(au.currentTime||0); go(cur-1) };
+$("next").onclick=()=>{ const cur=override!==null&&typeof override==="number"?override:mainAt(au.currentTime||0); go(cur+1) };
+$("behind").onclick=()=>{ override=null; tick() };
+$("rate").onchange=()=>{ au.playbackRate=parseFloat($("rate").value); store.set("rate",$("rate").value) };
+$("seek").addEventListener("input",()=>{ seeking=true; $("tc").textContent=fmt(+$("seek").value) });
+$("seek").addEventListener("change",()=>{ seekTo(+$("seek").value); seeking=false; override=null; tick() });
+au.addEventListener("timeupdate",tick);
+au.addEventListener("play",()=>{ setPlayIcon(); try{ navigator.wakeLock&&navigator.wakeLock.request("screen").then(w=>wake=w).catch(()=>{}) }catch(e){} });
+au.addEventListener("pause",()=>{ setPlayIcon(); if(key) store.set("pos:"+key,{t:au.currentTime||0}); try{wake&&wake.release()}catch(e){} wake=null });
+au.addEventListener("ended",()=>{ store.set("pos:"+key,{t:0}); $("cue").textContent="这一讲听完了。点「← 目录」选下一讲。"; $("cue").classList.add("idle") });
+au.addEventListener("waiting",()=>{ if(L&&L.audio){ $("cue").textContent="正在载入声音…"; $("cue").classList.add("idle") } });
+document.addEventListener("keydown",e=>{
+  if($("view").hidden||!L||e.target.tagName==="SELECT"||e.target.tagName==="INPUT") return;
+  if(e.key===" "){ e.preventDefault(); $("play").click() }
+  else if(e.key==="ArrowRight") $("next").click();
+  else if(e.key==="ArrowLeft") $("prev").click();
+});
+const r0=store.get("rate"); if(r0) $("rate").value=r0;
+window.addEventListener("hashchange",route);
+
+fetch("index.json").then(r=>r.json()).then(j=>{ INDEX=j; route() })
+  .catch(()=>{ $("list").innerHTML='<li id="load">目录没载入成功，检查一下网络后刷新页面。</li>' });
+})();
+</script>
+
+</body>
+</html>
