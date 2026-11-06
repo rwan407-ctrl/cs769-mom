@@ -131,6 +131,38 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   background:var(--no);color:var(--on-lv)}
 .th.lv-high .lvtag{background:var(--hi)} .th.lv-mid .lvtag{background:var(--mid)} .th.lv-low .lvtag{background:var(--low)}
 .th.lv-high{border-bottom-color:var(--hi)} .th.lv-mid{border-bottom-color:var(--mid)}
+/* ---------- 往年真题 ---------- */
+#qjump{margin-top:8px;border:1px solid var(--hi);background:var(--surface);color:var(--hi);border-radius:10px;padding:7px 12px;font-size:15px;font-weight:700}
+.qs-h{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;margin:30px 0 4px}
+.qs-h h2{font-size:20px}
+.qs-sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:5px 14px;font-size:15px;color:var(--muted)}
+.seg button.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.qlist{display:grid;gap:12px}
+.qc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);min-width:0;scroll-margin-top:72px}
+.qc.flash{border-color:var(--hi);box-shadow:0 0 0 3px var(--hi-soft)}
+.qc .qh{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14px;color:var(--muted)}
+.qc .qh .pill{background:var(--hi)}
+.qc .intro{color:var(--muted);font-size:15px;margin-top:8px}
+.qc .prompt{font-size:17px;line-height:1.7;margin-top:6px;overflow-wrap:anywhere}
+.qc .prompt p{margin:.3em 0}
+.qc .prompt img{display:block;max-width:100%;height:auto;margin:8px 0;background:#fff;border-radius:6px}
+.qc .prompt table,.qc .intro table{border-collapse:collapse;font-size:14px;margin:6px 0}
+.qc .prompt td,.qc .prompt th,.qc .intro td,.qc .intro th{border:1px solid var(--line);padding:3px 8px}
+.qc .tbl{overflow-x:auto;max-width:100%}
+.qc ol.opts{margin:6px 0 0;padding-left:0;list-style:none;display:grid;gap:4px}
+.qc ol.opts li{padding:4px 10px;border-radius:8px;background:var(--bg)}
+.qc .where{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font-size:15px;color:var(--muted)}
+.qc .where button{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:8px;padding:3px 10px;font-size:15px}
+.qc details{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.qc summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:15px}
+.qc .scheme{margin:8px 0 0;padding-left:0;list-style:none;display:grid;gap:4px;font-size:15px}
+.qc .scheme b{display:inline-block;min-width:3em;color:var(--hi)}
+.qc .explain{font-size:14.5px;color:var(--muted);margin-top:8px}
+.qc .en-ans{font-size:14.5px;margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--bg)}
+.th .qtag{position:absolute;left:5px;bottom:5px;right:auto;top:auto;border-radius:5px;padding:0 6px;font:700 11.5px/1.6 var(--f-body);
+  background:var(--surface);color:var(--hi);border:1px solid var(--hi)}
 @media (max-width:560px){
   body{font-size:16px}
   .ctl{grid-template-columns:1fr auto 1fr;gap:6px}
@@ -172,6 +204,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <button type="button" class="tierbox" id="tierBox" hidden><span class="pill" id="tierTag"></span><span class="txt" id="tierTxt"></span><span class="more">展开</span></button>
       <div class="stage" id="stage"><img id="slide" alt=""><span class="tag" id="tag"></span></div>
       <button type="button" class="impb" id="impb" hidden><span class="pill" id="impTag"></span><span class="txt"><b id="impT"></b> <span class="ev" id="impEv"></span></span><span class="more">展开</span></button>
+      <button type="button" id="qjump" hidden></button>
       <div class="pnum"><span>第 <b id="pn">1</b> / <b id="pt">1</b> 页</span><button id="behind" type="button" hidden>回到老师讲的那一页</button></div>
       <div class="say" id="sayBox"><div class="lbl">老师在说</div><p id="cue" class="idle">按 ▶ 开始听老师讲课。</p></div>
       <div class="ctl">
@@ -186,6 +219,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
         <span id="spanInfo"></span>
       </div>
       <p id="note"></p>
+      <section id="qsec" hidden>
+        <div class="qs-h"><h2>这一讲考过的期末真题（<span id="qn"></span> 道）</h2>
+          <div class="seg" role="group" aria-label="题目语言"><button type="button" id="langZh" class="on">中文</button><button type="button" id="langEn">English 原题</button></div></div>
+        <p class="qs-sub">2024、2025 年期末原题。中文是翻译，点「English 原题」看考卷上的英文原文。参考答案是按讲义整理的，老师没有公布过答案。</p>
+        <div class="qlist" id="qlist"></div>
+      </section>
       <h2 class="thumbs-h">这一讲的全部 <span id="tn"></span> 页<span id="thint">（点哪页就跳到老师讲那页的地方）</span></h2>
       <div class="thumbs" id="thumbs"></div>
     </div>
@@ -197,7 +236,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const V="3";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
+const V="4";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
 const au=$("au");
 let INDEX=[], L=null, key=null, override=null, lastRef=null, saveT=0, wake=null;
 
@@ -219,7 +258,7 @@ function renderList(){
     const li=document.createElement("li");
     const b=document.createElement("button"); b.type="button"; b.className="lec"+(m.audio?"":" mute");
     const last=store.get("pos2:"+m.key);
-    const sub=[m.when, m.pages+" 页", m.audio? "讲解约 "+m.min+" 分钟" : null].filter(Boolean).join(" · ");
+    const sub=[m.when, m.pages+" 页", m.audio? "讲解约 "+m.min+" 分钟" : null, m.nq? "考过 "+m.nq+" 道期末真题" : null].filter(Boolean).join(" · ");
     b.innerHTML='<span class="no">L'+m.key+'</span><span class="nm"></span><span class="sub"></span><span class="go"></span>';
     b.querySelector(".nm").textContent=m.name;
     const tr=TIER[(m.tier||[])[0]];
@@ -303,7 +342,47 @@ function show(ref){
     ib.hidden=false;
     requestAnimationFrame(()=>{ const t=ib.querySelector(".txt"); ib.querySelector(".more").hidden = t.scrollHeight<=t.clientHeight+2 });
   }
+  // 这页考过哪几道真题：点一下滚到下面那几道题
+  const qj=$("qjump"), hits=isMain? qsOn(ref) : [];
+  qj.hidden=!hits.length;
+  if(hits.length) qj.textContent="这页考过 "+hits.length+" 道期末真题（"+hits.map(i=>L.qs[i].exam.slice(0,4)+" "+L.qs[i].no).join("、")+"）›";
+  qj.dataset.hits=hits.join(",");
 }
+const qsOn=p=>(L&&L.qs||[]).map((q,i)=>q.pages.includes(p)?i:-1).filter(i=>i>=0);
+
+/* ---------- 往年真题 ---------- */
+let qlang=store.get("qlang")||"zh";
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])) }
+function renderQs(){
+  const box=$("qlist"); box.innerHTML="";
+  $("langZh").classList.toggle("on",qlang==="zh"); $("langEn").classList.toggle("on",qlang==="en");
+  (L.qs||[]).forEach((q,i)=>{
+    const zh=qlang==="zh";
+    const c=document.createElement("article"); c.className="qc"; c.id="q-"+i;
+    const intro = zh ? (q.intro_zh||q.intro_en) : q.intro_en;
+    const prompt = zh ? (q.zh||q.en) : q.en;
+    const opts = zh && q.zh_opts.length ? q.zh_opts : q.en_opts;
+    let h='<div class="qh"><span class="pill">'+esc(q.exam+" · "+q.no)+'</span><span>'+(q.marks?esc(q.marks)+" 分":"")+
+          (q.type==="mcq"?(zh?" · 单选题":" · multiple choice"):"")+'</span></div>';
+    if(intro) h+='<div class="intro">'+intro+'</div>';
+    h+='<div class="prompt">'+prompt+'</div>';
+    if(opts.length) h+='<ol class="opts">'+opts.map(o=>'<li>'+esc(o)+'</li>').join("")+'</ol>';
+    if(q.pages.length){
+      h+='<div class="where"><span>老师在这几页讲：</span>'+q.pages.slice(0,8).map(p=>'<button type="button" data-p="'+p+'">第 '+(p+1)+' 页 ▶</button>').join("")+'</div>';
+    }
+    h+='<details><summary>看参考答案（按讲义整理，不是老师给的）</summary>';
+    if(q.scheme.length) h+='<ul class="scheme">'+q.scheme.map(s=>'<li><b>'+(s[0]!=null?esc(s[0])+" 分":"")+'</b>'+esc(s[1])+'</li>').join("")+'</ul>';
+    if(q.explain) h+='<div class="explain">'+q.explain+'</div>';
+    if(q.answer) h+='<div class="en-ans"><b>'+(zh?"英文参考答案（考试要用英文写）：":"Reference answer:")+'</b><br>'+esc(q.answer)+'</div>';
+    h+='</details>';
+    c.innerHTML=h;
+    c.querySelectorAll("table").forEach(t=>{ const w=document.createElement("div"); w.className="tbl"; t.parentNode.insertBefore(w,t); w.appendChild(t) });
+    c.querySelectorAll(".where button").forEach(b=>b.onclick=()=>{ go(+b.dataset.p); window.scrollTo({top:0,behavior:"smooth"}) });
+    box.appendChild(c);
+  });
+}
+function setLang(l){ qlang=l; store.set("qlang",l); const open=[...document.querySelectorAll(".qc details")].map(d=>d.open); renderQs();
+  document.querySelectorAll(".qc details").forEach((d,i)=>d.open=!!open[i]) }
 function drawHeat(dur){ // 进度条下面按时间涂考点颜色：哪一段在讲重点一眼就看出来
   const h=$("heat"); if(!L||!L.audio||!L.tl.length||!(dur>0)){ h.style.background=""; return }
   const css=getComputedStyle(document.documentElement);
@@ -374,12 +453,14 @@ async function openLecture(k){
     const b=document.createElement("button"); b.type="button"; b.className="th lv-"+lv+(L.audio&&firstTime(i)==null?" unheard":"");
     b.innerHTML='<img loading="lazy" alt=""><span>'+(i+1)+'</span><span class="lvtag"></span>'; b.querySelector("img").src=pg.img;
     b.querySelector(".lvtag").textContent=LVS[lv]||lv;
+    if(qsOn(i).length){ const s=document.createElement("span"); s.className="qtag"; s.textContent="考过真题"; b.appendChild(s) }
     b.querySelector("img").alt="第 "+(i+1)+" 页"; b.onclick=()=>{ go(i); window.scrollTo({top:0,behavior:"smooth"}) };
     th.appendChild(b);
   });
   const hasA=!!m.audio;
   ["play","rew","fwd"].forEach(id=>$(id).disabled=!hasA);
   $("seekRow").hidden=!hasA; $("optsRow").hidden=!hasA; $("heatKey").hidden=!hasA;
+  L.qs=L.qs||[]; $("qsec").hidden=!L.qs.length; $("qn").textContent=L.qs.length; if(L.qs.length) renderQs();
   // 整讲考不考：等级 + 为什么（复习课点名 / 两年真卷）
   const tr=TIER[(m.tier||[])[0]], tb=$("tierBox");
   tb.hidden=!tr; tb.classList.remove("open"); $("impb").dataset.p="";
@@ -424,6 +505,15 @@ $("next").onclick=()=>{ const cur=override!==null&&typeof override==="number"?ov
 $("behind").onclick=()=>{ override=null; tick() };
 $("tierBox").onclick=()=>$("tierBox").classList.toggle("open");
 $("impb").onclick=()=>$("impb").classList.toggle("open");
+$("langZh").onclick=()=>setLang("zh");
+$("langEn").onclick=()=>setLang("en");
+$("qjump").onclick=()=>{
+  const hits=($("qjump").dataset.hits||"").split(",").filter(Boolean).map(Number);
+  if(!hits.length) return;
+  document.querySelectorAll(".qc.flash").forEach(x=>x.classList.remove("flash"));
+  hits.forEach(i=>{ const c=$("q-"+i); if(c) c.classList.add("flash") });
+  const first=$("q-"+hits[0]); if(first) first.scrollIntoView({behavior:"smooth",block:"start"});
+};
 $("rate").onchange=()=>{ au.playbackRate=parseFloat($("rate").value); store.set("rate",$("rate").value) };
 $("seek").addEventListener("input",()=>{ seeking=true; $("tc").textContent=fmt(+$("seek").value) });
 $("seek").addEventListener("change",()=>{ seekTo(+$("seek").value); seeking=false; override=null; tick() });
