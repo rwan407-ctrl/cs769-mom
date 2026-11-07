@@ -76,7 +76,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .pnum{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 2px 0;color:var(--muted);font-size:15px}
 .pnum b{color:var(--ink);font-variant-numeric:tabular-nums}
 #behind{border:0;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:3px 10px;font-size:14px}
-.say{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-height:76px;max-height:9.5em;overflow:auto}
+.say{margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-height:76px;max-height:14em;overflow:auto}
 .say .lbl{font-size:13px;color:var(--muted);letter-spacing:.06em}
 #cue{font-size:clamp(18px,3.8vw,21px);line-height:1.65;margin:2px 0 0}
 #cue.idle{color:var(--muted);font-size:16px}
@@ -125,8 +125,36 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .impb.open .more,.tierbox.open .more{display:none}
 .track{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .track input{width:100%}
-#heat{height:7px;border-radius:4px;background:var(--line)}
+/* 进度条本身按考点上色：圆点压在哪个颜色上，那一刻就是那个等级，不用再对照下面的细条估 */
+#seek{-webkit-appearance:none;appearance:none;background:transparent;height:34px;margin:0}
+#seek::-webkit-slider-runnable-track{height:14px;border-radius:7px;background:var(--heat,var(--line))}
+#seek::-moz-range-track{height:14px;border-radius:7px;background:var(--heat,var(--line))}
+#seek::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;margin-top:-6px;border-radius:50%;
+  background:var(--surface);border:4px solid var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.45)}
+#seek::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--surface);border:4px solid var(--ink)}
+#played{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+#played i{display:block;height:100%;width:0;background:var(--accent)}
 .heatkey{font-size:13px;color:var(--muted);margin-top:2px}
+.posinfo{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:6px;font-size:15px}
+.posinfo .pill{vertical-align:0}
+.posinfo .rng{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.posinfo.drag{color:var(--accent);font-weight:700}
+.jumps{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.jumps .btn{padding:6px 11px;font-size:15px}
+.jumps .btn.hi{border-color:var(--hi);color:var(--hi);font-weight:700}
+.jumps select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:5px 6px;font-size:15px}
+/* 英文原话 + 复制 */
+#cueEn{margin:4px 0 0;font-size:15.5px;line-height:1.55;color:var(--muted);font-family:Georgia,"Times New Roman",serif}
+#cueEn:empty{display:none}
+.say .lblrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.say .lblrow label{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+.copyrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.copyrow .btn{padding:7px 12px;font-size:15px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;
+  background:var(--ink);color:var(--bg);border-radius:10px;padding:9px 16px;font-size:15px;max-width:90vw;box-shadow:var(--shadow)}
+#copyBox{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+#copyBox p{margin:0 0 6px;font-size:14px;color:var(--warn)}
+#copyBox textarea{width:100%;height:40vh;font:13px/1.45 var(--f-num);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px}
 .th .lvtag{position:absolute;left:5px;top:5px;right:auto;bottom:auto;border-radius:5px;padding:0 6px;font:700 11.5px/1.6 var(--f-body);
   background:var(--no);color:var(--on-lv)}
 .th.lv-high .lvtag{background:var(--hi)} .th.lv-mid .lvtag{background:var(--mid)} .th.lv-low .lvtag{background:var(--low)}
@@ -206,14 +234,26 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       <button type="button" class="impb" id="impb" hidden><span class="pill" id="impTag"></span><span class="txt"><b id="impT"></b> <span class="ev" id="impEv"></span></span><span class="more">展开</span></button>
       <button type="button" id="qjump" hidden></button>
       <div class="pnum"><span>第 <b id="pn">1</b> / <b id="pt">1</b> 页</span><button id="behind" type="button" hidden>回到老师讲的那一页</button></div>
-      <div class="say" id="sayBox"><div class="lbl">老师在说</div><p id="cue" class="idle">按 ▶ 开始听老师讲课。</p></div>
+      <div class="say" id="sayBox"><div class="lblrow"><span class="lbl">老师在说</span><label id="enLbl"><input type="checkbox" id="showEn"> 显示英文原话</label></div><p id="cue" class="idle">按 ▶ 开始听老师讲课。</p><p id="cueEn" lang="en"></p></div>
       <div class="ctl">
         <div class="side"><button class="btn" id="prev" type="button">‹ <span class="long">上一页</span><span class="short">上页</span></button><button class="btn" id="rew" type="button" aria-label="倒退15秒">↺15<span class="long">秒</span></button></div>
         <button id="play" type="button" aria-label="播放"><svg viewBox="0 0 24 24" id="playIc"><path d="M8 5v14l11-7z"/></svg></button>
         <div class="side r"><button class="btn" id="fwd" type="button" aria-label="快进15秒">15<span class="long">秒</span>↻</button><button class="btn" id="next" type="button"><span class="long">下一页</span><span class="short">下页</span> ›</button></div>
       </div>
-      <div class="seek" id="seekRow"><span id="tc">0:00</span><div class="track"><input id="seek" type="range" min="0" max="1" step="1" value="0" aria-label="播放进度"><div id="heat" title="进度条下面的颜色：红 = 极可能考，橙 = 可能考，蓝灰 = 不太会考，灰 = 不考"></div></div><span id="td">0:00</span></div>
-      <div class="heatkey" id="heatKey">进度条下面的颜色：<b style="color:var(--hi)">红</b> 极可能考，<b style="color:var(--mid)">橙</b> 可能考，<b style="color:var(--low)">蓝灰</b> 不太会考，灰 不考</div>
+      <div class="seek" id="seekRow"><span id="tc">0:00</span><div class="track"><input id="seek" type="range" min="0" max="1" step="1" value="0" aria-label="播放进度"><div id="played" title="已经听到哪里"><i id="playedI"></i></div></div><span id="td">0:00</span></div>
+      <div class="heatkey" id="heatKey">进度条的颜色：<b style="color:var(--hi)">红</b> 极可能考，<b style="color:var(--mid)">橙</b> 可能考，<b style="color:var(--low)">蓝灰</b> 不太会考，灰 不考。圆点压在哪个颜色上，现在就在讲哪一级。</div>
+      <div class="posinfo" id="posInfo" aria-live="polite"></div>
+      <div class="jumps" id="jumpRow">
+        <button class="btn hi" id="prevKey" type="button">‹ 上一段重点</button><button class="btn hi" id="nextKey" type="button">下一段重点 ›</button>
+        <label>重点指 <select id="keyLv"><option value="high">只算红色</option><option value="mid">红色+橙色</option></select></label>
+        <label><input type="checkbox" id="skipMode"> 播放时自动跳过不是重点的段落</label>
+      </div>
+      <div class="copyrow" id="copyRow">
+        <button class="btn" id="copyAll" type="button">复制整讲英文原话</button>
+        <button class="btn" id="copyPage" type="button">复制这一页的英文</button>
+        <button class="btn" id="saveTxt" type="button">存成 TXT</button>
+      </div>
+      <div id="copyBox" hidden><p>这个浏览器不让网页直接写剪贴板：文字已经全选好了，长按一下选「复制」就行。</p><textarea id="copyTa" readonly></textarea></div>
       <div class="opts" id="optsRow">
         <label>语速 <select id="rate"><option value="0.8">慢一点</option><option value="1" selected>正常</option><option value="1.2">快一点</option><option value="1.5">很快</option></select></label>
         <span id="spanInfo"></span>
@@ -231,12 +271,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   </section>
 </main>
 <audio id="au" preload="metadata"></audio>
+<div id="toast" role="status" hidden></div>
 
 <script>
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const V="4";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
+const V="5";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
 const au=$("au");
 let INDEX=[], L=null, key=null, override=null, lastRef=null, saveT=0, wake=null;
 
@@ -383,25 +424,102 @@ function renderQs(){
 }
 function setLang(l){ qlang=l; store.set("qlang",l); const open=[...document.querySelectorAll(".qc details")].map(d=>d.open); renderQs();
   document.querySelectorAll(".qc details").forEach((d,i)=>d.open=!!open[i]) }
-function drawHeat(dur){ // 进度条下面按时间涂考点颜色：哪一段在讲重点一眼就看出来
-  const h=$("heat"); if(!L||!L.audio||!L.tl.length||!(dur>0)){ h.style.background=""; return }
-  const css=getComputedStyle(document.documentElement);
-  const col={high:css.getPropertyValue("--hi"),mid:css.getPropertyValue("--mid"),low:css.getPropertyValue("--low"),
-             no:css.getPropertyValue("--line"),admin:css.getPropertyValue("--line"),none:css.getPropertyValue("--line")};
-  const stops=[]; let prevC=null;
-  const pageAt=i=>{ for(let j=i;j>=0;j--) if(typeof L.tl[j][1]==="number") return L.tl[j][1]; return 0 };
+/* ---------- 考点分段：按翻页时间表把整条音轨切成「红/橙/蓝灰/灰」几段 ---------- */
+let SEGS=[], DUR=0;
+function buildSegs(dur){ // 每段 {a 起, b 止, lv}；插播别的讲义时算前一张本讲页的等级；相邻同色并成一段
+  SEGS=[]; DUR=dur||0; if(!L||!L.audio||!L.tl.length||!(dur>0)) return;
+  let p=0;
   L.tl.forEach((e,i)=>{
-    const c=(col[lvOf(pageAt(i))]||col.none).trim(), a=i===0?0:Math.min(100,e[0]/dur*100);
-    if(c!==prevC){ if(prevC!==null) stops.push(prevC+" "+a.toFixed(2)+"%"); stops.push(c+" "+a.toFixed(2)+"%"); prevC=c }
+    if(typeof e[1]==="number") p=e[1];
+    const lv=lvOf(p), a=i===0?0:Math.min(dur,e[0]), last=SEGS[SEGS.length-1];
+    if(last && last.lv===lv) return;
+    if(last) last.b=a;
+    SEGS.push({a:a,b:dur,lv:lv});
   });
-  stops.push(prevC+" 100%");
-  h.style.background="linear-gradient(to right,"+stops.join(",")+")";
+}
+function drawHeat(dur){ // 进度条本身涂考点颜色
+  buildSegs(dur);
+  const s=$("seek"); if(!SEGS.length){ s.style.removeProperty("--heat"); return }
+  const css=getComputedStyle(document.documentElement), g=v=>css.getPropertyValue(v).trim();
+  const col={high:g("--hi"),mid:g("--mid"),low:g("--low")};
+  const stops=SEGS.map(x=>{ const c=col[x.lv]||g("--line"); return c+" "+(x.a/DUR*100).toFixed(2)+"% "+(x.b/DUR*100).toFixed(2)+"%" });
+  s.style.setProperty("--heat","linear-gradient(to right,"+stops.join(",")+")");
+}
+const segAt=t=>{ for(let i=SEGS.length-1;i>=0;i--) if(SEGS[i].a<=t) return i; return SEGS.length?0:-1 };
+const keySet=()=>$("keyLv").value==="mid"? ["high","mid"] : ["high"];
+function blocks(){ // 连着的重点段并成一块：[{a,b}]
+  const ks=keySet(), out=[];
+  SEGS.forEach(x=>{ if(!ks.includes(x.lv)) return; const l=out[out.length-1];
+    if(l && Math.abs(l.b-x.a)<0.01) l.b=x.b; else out.push({a:x.a,b:x.b}) });
+  return out;
+}
+function posInfo(t,drag){ // 进度条下面一行字：圆点所在的页、等级、这一段从几分到几分、下一段重点在哪
+  const el=$("posInfo"); if(!L||!L.audio||!SEGS.length){ el.textContent=""; return }
+  const i=segAt(t), s=SEGS[i], p=mainAt(t), lv=s?s.lv:"none";
+  const nb=blocks().find(b=>b.a>t+0.5);
+  el.classList.toggle("drag",!!drag);
+  el.innerHTML=(drag?"拖到 "+fmt(t)+" → ":"现在 ")+"第 "+(p+1)+" 页 <i class=\"pill lv-"+lv+"\">"+esc(LVN[lv]||lv)+"</i>"+
+    (s?'<span class="rng">这一段 '+fmt(s.a)+"–"+fmt(s.b)+"</span>":"")+
+    '<span class="rng">'+(nb? "· 下一段"+($("keyLv").value==="mid"?"红/橙":"红色")+"在 "+fmt(nb.a)+"（第 "+(mainAt(nb.a+0.05)+1)+" 页）" : "· 后面没有"+($("keyLv").value==="mid"?"红/橙":"红色")+"了")+"</span>";
+}
+function jumpKey(dir){
+  const t=au.currentTime||0, bs=blocks();
+  if(!bs.length){ toast("这一讲没有"+($("keyLv").value==="mid"?"红色或橙色":"红色")+"的段落"); return }
+  let target=null;
+  if(dir>0){ const b=bs.find(b=>b.a>t+0.5); if(b) target=b.a }
+  else { const cur=bs.filter(b=>b.a<=t+0.5); const c=cur[cur.length-1];
+    if(c && t<c.b && t-c.a>3) target=c.a; else if(c){ const prev=cur[cur.length-(t<c.b?2:1)]; target=prev?prev.a:null } }
+  if(target==null){ toast(dir>0?"后面没有重点段落了":"前面没有重点段落了"); return }
+  seekTo(target+0.05); override=null; tick();
+}
+let skipT=0;
+function autoSkip(t){ // 「自动跳过」：播放到不是重点的段落就跳到下一块重点
+  if(!$("skipMode").checked||au.paused||seeking||!SEGS.length) return;
+  const s=SEGS[segAt(t)]; if(!s||keySet().includes(s.lv)) return;
+  const now=Date.now(); if(now-skipT<1500) return; skipT=now;
+  const nb=blocks().find(b=>b.a>t);
+  if(nb){ seekTo(nb.a+0.05); toast("跳过 "+fmt(t)+"–"+fmt(nb.a)+"（不是重点）") }
+  else { au.pause(); toast("后面没有重点了，已暂停") }
+}
+
+/* ---------- 英文原话：当前句 + 复制整讲/这一页 ---------- */
+function enAt(t){
+  const s=L&&L.en||[]; let lo=0,hi=s.length-1,ans=-1;
+  while(lo<=hi){const mid=(lo+hi)>>1; if(s[mid][0]<=t){ans=mid;lo=mid+1}else hi=mid-1}
+  return ans>=0 && t<=s[ans][1]+1.2 ? s[ans] : null;
+}
+function transcript(page){ // page = null 整讲；否则只要这一页（老师翻回来讲的也算）
+  const m=INDEX.find(x=>x.key===key)||{};
+  const head="CS769 L"+key+" "+(m.name||"")+(m.when?"（"+m.when+"）":"")+(page==null?"":" · 第 "+(page+1)+" 页")+
+    "\nLecture transcript (English, auto-transcribed from the recording)\n";
+  let out=[], cur=null, buf=[];
+  const flush=()=>{ if(buf.length) out.push("[第 "+(cur+1)+" 页 · "+(LVN[lvOf(cur)]||"")+"]\n"+buf.join(" ")); buf=[] };
+  (L.en||[]).forEach(e=>{
+    const p=mainAt(e[0]+0.01); if(page!=null && p!==page) return;
+    if(p!==cur){ flush(); cur=p } buf.push(e[2].trim());
+  });
+  flush();
+  return out.length? head+"\n"+out.join("\n\n")+"\n" : "";
+}
+let toastT=0;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600) }
+function copyText(txt,what){
+  if(!txt){ toast("这里没有英文原话"); return }
+  const n=txt.length.toLocaleString(), ok=()=>{ $("copyBox").hidden=true; toast("已复制"+what+"（"+n+" 个字符），可以去别的 App 粘贴了") };
+  const legacy=()=>{ // http 局域网地址下没有 navigator.clipboard：用老办法，再不行就全选给用户长按复制
+    const ta=$("copyTa"); ta.value=txt; $("copyBox").hidden=false;
+    ta.focus(); ta.select(); try{ ta.setSelectionRange(0,txt.length) }catch(e){}
+    let done=false; try{ done=document.execCommand("copy") }catch(e){}
+    if(done){ ok(); ta.blur() } else ta.scrollIntoView({block:"center"});
+  };
+  if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(txt).then(ok,legacy); else legacy();
 }
 function tick(){
   if(!L) return;
   const t=au.currentTime||0;
   const r=L.audio? refAt(t) : 0;
   if(String(r)!==String(lastRef)){ lastRef=r; if(override!==null && !au.paused) override=null; }
+  if(seeking) return;   // 正在拖进度条：画面显示拖到的那页，松手再回来
   show(override!==null ? override : (L.audio? r : 0));
   $("behind").hidden = !(override!==null && L.audio && (au.currentTime>0 || !au.paused));
   if(L.audio){
@@ -413,8 +531,13 @@ function tick(){
       if(room>4){ const f=Math.min(1,Math.max(0,(t-c[0])/Math.max(1,c[1]-c[0]))); box.scrollTop=Math.max(0,f*(room+box.clientHeight)-box.clientHeight*0.4) }
     }
     else if(!au.paused){ el.textContent="（老师这会儿没说话，或者在放视频、写板书）"; el.classList.add("idle") }
+    const ce=$("showEn").checked&&(c||!au.paused)? enAt(t) : null, ee=$("cueEn");
+    if((ce?ce[2]:"")!==ee.textContent) ee.textContent=ce?ce[2]:"";
     $("tc").textContent=fmt(t);
-    if(!seeking) $("seek").value=Math.floor(t);
+    $("seek").value=Math.floor(t);
+    $("playedI").style.width=(DUR? Math.min(100,t/DUR*100) : 0)+"%";
+    posInfo(t,false);
+    autoSkip(t);
     const now=Date.now(); if(now-saveT>4000){ saveT=now; store.set("pos2:"+key,{t:t}) }
   }
 }
@@ -460,6 +583,8 @@ async function openLecture(k){
   const hasA=!!m.audio;
   ["play","rew","fwd"].forEach(id=>$(id).disabled=!hasA);
   $("seekRow").hidden=!hasA; $("optsRow").hidden=!hasA; $("heatKey").hidden=!hasA;
+  $("jumpRow").hidden=!hasA; $("posInfo").textContent=""; $("cueEn").textContent=""; $("copyBox").hidden=true;
+  L.en=L.en||[]; $("copyRow").hidden=!L.en.length; $("enLbl").hidden=!L.en.length;
   L.qs=L.qs||[]; $("qsec").hidden=!L.qs.length; $("qn").textContent=L.qs.length; if(L.qs.length) renderQs();
   // 整讲考不考：等级 + 为什么（复习课点名 / 两年真卷）
   const tr=TIER[(m.tier||[])[0]], tb=$("tierBox");
@@ -515,8 +640,23 @@ $("qjump").onclick=()=>{
   const first=$("q-"+hits[0]); if(first) first.scrollIntoView({behavior:"smooth",block:"start"});
 };
 $("rate").onchange=()=>{ au.playbackRate=parseFloat($("rate").value); store.set("rate",$("rate").value) };
-$("seek").addEventListener("input",()=>{ seeking=true; $("tc").textContent=fmt(+$("seek").value) });
+$("seek").addEventListener("input",()=>{ // 拖的时候：时间、画面、等级都跟着圆点走，松手前就知道拖到了哪
+  seeking=true; const v=+$("seek").value; $("tc").textContent=fmt(v);
+  if(L&&L.audio){ show(refAt(v)); posInfo(v,true) } });
 $("seek").addEventListener("change",()=>{ seekTo(+$("seek").value); seeking=false; override=null; tick() });
+$("prevKey").onclick=()=>jumpKey(-1);
+$("nextKey").onclick=()=>jumpKey(1);
+$("keyLv").onchange=()=>{ store.set("keyLv",$("keyLv").value); if(L) posInfo(au.currentTime||0,false) };
+$("skipMode").onchange=()=>{ store.set("skipMode",$("skipMode").checked);
+  if($("skipMode").checked) toast("开了：播放时只听"+($("keyLv").value==="mid"?"红色和橙色":"红色")+"段落"); skipT=0; tick() };
+$("showEn").onchange=()=>{ store.set("showEn",$("showEn").checked); tick() };
+$("copyAll").onclick=()=>copyText(transcript(null),"整讲英文原话");
+$("copyPage").onclick=()=>{ const p=override!==null&&typeof override==="number"?override:mainAt(au.currentTime||0);
+  copyText(transcript(p),"第 "+(p+1)+" 页的英文") };
+$("saveTxt").onclick=()=>{ const t=transcript(null); if(!t) return; const m=INDEX.find(x=>x.key===key)||{};
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([t],{type:"text/plain;charset=utf-8"}));
+  a.download="CS769 L"+key+" "+(m.name||"")+" English transcript.txt"; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove() },3000) };
 au.addEventListener("timeupdate",tick);
 au.addEventListener("play",()=>{ setPlayIcon(); try{ navigator.wakeLock&&navigator.wakeLock.request("screen").then(w=>wake=w).catch(()=>{}) }catch(e){} });
 au.addEventListener("pause",()=>{ setPlayIcon(); if(key) store.set("pos2:"+key,{t:au.currentTime||0}); try{wake&&wake.release()}catch(e){} wake=null });
@@ -529,6 +669,9 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="ArrowLeft") $("prev").click();
 });
 const r0=store.get("rate"); if(r0) $("rate").value=r0;
+const k0=store.get("keyLv"); if(k0) $("keyLv").value=k0;
+$("skipMode").checked=!!store.get("skipMode");
+$("showEn").checked=store.get("showEn")!==false;
 window.addEventListener("hashchange",route);
 
 fetch("index.json").then(r=>r.json()).then(j=>{ INDEX=j; route() })
