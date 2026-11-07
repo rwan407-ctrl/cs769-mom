@@ -93,6 +93,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .seek input{flex:1;min-width:0;accent-color:var(--accent);height:28px}
 .opts{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-top:8px;color:var(--muted);font-size:15px}
 .opts select{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 6px}
+.rateBox{flex:1 1 100%;min-width:0}
+.rateH{font-size:14px;margin-bottom:6px}
+.rates{display:grid;grid-template-columns:repeat(8,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.rates button{border:0;border-left:1px solid var(--line);background:transparent;padding:9px 0;font:14px var(--f-num);color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;min-width:0}
+.rates button:first-child{border-left:0}
+.rates button.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.rateInfo{font-size:14px;margin-top:6px;min-height:1.4em}
 #note{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:var(--warn-soft);color:var(--warn);font-size:15px}
 #note:empty{display:none}
 #load{padding:60px 0;text-align:center;color:var(--muted)}
@@ -255,7 +262,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
       </div>
       <div id="copyBox" hidden><p>这个浏览器不让网页直接写剪贴板：文字已经全选好了，长按一下选「复制」就行。</p><textarea id="copyTa" readonly></textarea></div>
       <div class="opts" id="optsRow">
-        <label>语速 <select id="rate"><option value="0.8">慢一点</option><option value="1" selected>正常</option><option value="1.2">快一点</option><option value="1.5">很快</option></select></label>
+        <div class="rateBox"><div class="rateH">语速（倍数，1× = 原速）</div>
+          <div class="rates" id="rateSeg" role="group" aria-label="语速"></div>
+          <div class="rateInfo" id="rateInfo" aria-live="polite"></div></div>
         <span id="spanInfo"></span>
       </div>
       <p id="note"></p>
@@ -277,7 +286,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const V="5";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
+const V="6";  // 数据版本：重新生成过声音/翻页时间就加一，手机才不会用旧缓存
 const au=$("au");
 let INDEX=[], L=null, key=null, override=null, lastRef=null, saveT=0, wake=null;
 
@@ -354,7 +363,7 @@ function loadWhole(t){
   $("cue").textContent="正在下载这一讲的声音，下载完就跳过去（只需要等一次）…"; $("cue").classList.add("idle");
   blobing=fetch(src).then(r=>{ if(!r.ok) throw 0; return r.blob() }).then(b=>{
     if(key!==k) return;
-    blobFor=k; au.src=URL.createObjectURL(b); au.playbackRate=parseFloat($("rate").value);
+    blobFor=k; au.src=URL.createObjectURL(b); applyRate();
     au.addEventListener("loadedmetadata",function once(){ au.removeEventListener("loadedmetadata",once);
       au.currentTime=pendingT!=null?pendingT:t; pendingT=null; if(wasPlaying) au.play().catch(()=>{}); tick() });
   }).catch(()=>{ $("cue").textContent="声音下载没成功，检查一下网络再试。" }).finally(()=>{ blobing=null });
@@ -537,6 +546,7 @@ function tick(){
     $("seek").value=Math.floor(t);
     $("playedI").style.width=(DUR? Math.min(100,t/DUR*100) : 0)+"%";
     posInfo(t,false);
+    rateInfo(t);
     autoSkip(t);
     const now=Date.now(); if(now-saveT>4000){ saveT=now; store.set("pos2:"+key,{t:t}) }
   }
@@ -596,7 +606,7 @@ async function openLecture(k){
   $("thint").textContent = hasA ? "（点哪页就跳到老师讲那页的地方）" : "（点哪页就看哪页）";
   $("spanInfo").textContent = hasA && L.spans.length>1 ? "这一讲分两次课讲完，中间接着放" : "";
   if(hasA){
-    au.src=L.audio; au.playbackRate=parseFloat($("rate").value);
+    au.src=L.audio; applyRate();
     $("seek").max=Math.round(m.min*60); $("td").textContent=fmt(m.min*60);
     const last=store.get("pos2:"+k);
     const start= last&&last.t>5 ? last.t : 0;
@@ -639,7 +649,25 @@ $("qjump").onclick=()=>{
   hits.forEach(i=>{ const c=$("q-"+i); if(c) c.classList.add("flash") });
   const first=$("q-"+hits[0]); if(first) first.scrollIntoView({behavior:"smooth",block:"start"});
 };
-$("rate").onchange=()=>{ au.playbackRate=parseFloat($("rate").value); store.set("rate",$("rate").value) };
+const RATES=[0.75,1,1.25,1.5,1.75,2,2.5,3];  // 浏览器变速不变调，3× 以内中文还听得清
+let RATE=1, rateTxt="";
+function applyRate(){ au.defaultPlaybackRate=RATE; au.playbackRate=RATE; try{ au.preservesPitch=true }catch(e){} }
+function rateInfo(t){
+  let x;
+  if(!L||!L.audio) x="";
+  else { const d=DUR||(au.duration>0?au.duration:0), left=Math.max(0,d-(t||0));
+    x = !d ? "" : (RATE===1? "原速：" : RATE+" 倍：") + "这一讲还剩 "+fmt(left)+"，实际听完要 "+Math.max(1,Math.round(left/RATE/60))+" 分钟"
+        + (RATE!==1? "（原速要 "+Math.max(1,Math.round(left/60))+" 分钟）" : ""); }
+  if(x!==rateTxt){ rateTxt=x; $("rateInfo").textContent=x }
+}
+function setRate(r){
+  RATE=RATES.reduce((a,b)=>Math.abs(b-r)<Math.abs(a-r)?b:a);  // 旧存的 0.8/1.2 自动靠到最近的一档
+  applyRate(); store.set("rate",String(RATE));
+  document.querySelectorAll("#rateSeg button").forEach(b=>{ const on=+b.dataset.r===RATE; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on) });
+  rateTxt=""; rateInfo(au.currentTime||0);
+}
+$("rateSeg").innerHTML=RATES.map(r=>'<button type="button" data-r="'+r+'">'+r+'×</button>').join("");
+$("rateSeg").onclick=e=>{ const b=e.target.closest("button"); if(b){ setRate(+b.dataset.r); toast(RATE===1?"原速 1×":RATE+" 倍速") } };
 $("seek").addEventListener("input",()=>{ // 拖的时候：时间、画面、等级都跟着圆点走，松手前就知道拖到了哪
   seeking=true; const v=+$("seek").value; $("tc").textContent=fmt(v);
   if(L&&L.audio){ show(refAt(v)); posInfo(v,true) } });
@@ -668,7 +696,7 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="ArrowRight") $("next").click();
   else if(e.key==="ArrowLeft") $("prev").click();
 });
-const r0=store.get("rate"); if(r0) $("rate").value=r0;
+setRate(parseFloat(store.get("rate"))||1);
 const k0=store.get("keyLv"); if(k0) $("keyLv").value=k0;
 $("skipMode").checked=!!store.get("skipMode");
 $("showEn").checked=store.get("showEn")!==false;
